@@ -1,0 +1,9 @@
+[package]
+name = "snailcrypt-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+getopts = "0.2"
+chrono = "0.4.23"
+snailcrypt = { path = "/home/ritsch_master/Documents/Work/snailcrypt/snailcrypt", version = "0.1.0" }
