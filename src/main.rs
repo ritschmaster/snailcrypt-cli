@@ -135,6 +135,7 @@ fn main() {
     opts.optopt( "e", "encrypt", "Encrypts a string using the given lock date", "LOCK_DATE");    
     opts.optopt( "i", "input",   "Use input file instead of stdin", "INPUT_FILE");    
     opts.optopt( "o", "stdout",  "Use input file instead of stdout", "OUTPUT_FILE");    
+//    opts.optflag("f", "force",   "Force using a lock date in the past");
     opts.optflag("h", "help",    "Print this help");
     opts.optflag("V", "version", "Print version");
     
