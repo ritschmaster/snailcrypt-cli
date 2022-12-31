@@ -2,6 +2,7 @@ extern crate getopts;
 extern crate chrono;
 extern crate snailcrypt;
 
+use core::cmp::Ordering;
 use std::{
 	env,
 	fs::File,
@@ -10,7 +11,7 @@ use std::{
 		stdin,
 		stdout,
 		Write,
-	},
+	},	
 	process::exit,
 };
 
@@ -23,6 +24,7 @@ use snailcrypt::{
 use chrono::{
         DateTime,
         FixedOffset,
+        Local,
 };	
 
 fn print_usage(program: &str, opts: Options) {
@@ -35,8 +37,10 @@ fn print_version(program: &str) {
 }
 
 fn encrypt(lockdate_str: &str, 
+		   force_lockdate: bool,
 		   mut in_descriptor: Box<dyn Read>,
-		   mut out_descriptor: Box<dyn Write>) {
+		   mut out_descriptor: Box<dyn Write>) 
+	-> i32 {
 	//=========================================================================
 	// Setup client object
 	let analyzer_factory: factory::AnalyzerFactory = 
@@ -47,7 +51,7 @@ fn encrypt(lockdate_str: &str,
 									config_factory);
     let client: Box<dyn client::Client> = client_factory
     									  .create(client::ClientVersion::V1);
-    
+       
     //=========================================================================
     // Parse lock date
     let lockdate: DateTime<FixedOffset> = DateTime::parse_from_str(&lockdate_str,
@@ -55,6 +59,20 @@ fn encrypt(lockdate_str: &str,
 	    .unwrap_or_else(|error| {
 	    panic!("Error: {:?}", error);
 	});
+	
+	//=========================================================================
+	// Exit on lockdate in the past
+	let date_now: DateTime<FixedOffset> = Local::now()
+									.with_timezone(
+										&FixedOffset::east_opt(0)
+										.unwrap_or_else(|| {
+											panic!("Error: unexpected error during conversion of current date time.");									
+										}));
+	if force_lockdate == false && date_now.cmp(&lockdate) != Ordering::Less {
+		eprintln!("Error: lock date {} is in the past.",		
+				  lockdate.format(client.get_datetime_format()).to_string());
+		return 1;
+	}
 	
 	//=========================================================================
 	// Retrieve plaintext
@@ -78,10 +96,13 @@ fn encrypt(lockdate_str: &str,
 				  .unwrap_or_else(|error| {
 		panic!("Error: {:?}", error);
 	});
+	
+	return 0;
 }
 
 fn decrypt(mut in_descriptor: Box<dyn Read>,
-		   mut out_descriptor: Box<dyn Write>) {
+		   mut out_descriptor: Box<dyn Write>)
+	-> i32 {
 	//=========================================================================
 	// Retrieve ciphertext
 	let mut ciphertext: String = String::new();
@@ -122,6 +143,8 @@ fn decrypt(mut in_descriptor: Box<dyn Read>,
 	out_descriptor.write_all(plaintext.as_bytes()).unwrap_or_else(|error| {
 		panic!("Error: {:?}", error);
 	});
+	
+	return 0;
 }
 
 fn main() {
@@ -135,7 +158,7 @@ fn main() {
     opts.optopt( "e", "encrypt", "Encrypts a string using the given lock date", "LOCK_DATE");    
     opts.optopt( "i", "input",   "Use input file instead of stdin", "INPUT_FILE");    
     opts.optopt( "o", "stdout",  "Use input file instead of stdout", "OUTPUT_FILE");    
-//    opts.optflag("f", "force",   "Force using a lock date in the past");
+    opts.optflag("f", "force",   "Force using a lock date in the past");
     opts.optflag("h", "help",    "Print this help");
     opts.optflag("V", "version", "Print version");
     
@@ -199,6 +222,13 @@ fn main() {
 		}))	
 	}
 	
+	//=========================================================================
+	// Set force flag
+	let mut force_lockdate: bool = false;
+	if matches.opt_present("f") {
+		force_lockdate = true;
+	}
+	
 	if matches.opt_present("e") && matches.opt_present("d") {
 		//=====================================================================
 		// Error: both options are present
@@ -217,11 +247,14 @@ fn main() {
 			},		
 		};    
 		
-		encrypt(&lockdate_str, in_descriptor, out_descriptor);
+		exit(encrypt(&lockdate_str, 
+					 force_lockdate, 
+					 in_descriptor, 
+					 out_descriptor));
 	} else if matches.opt_present("d") {
 		//=====================================================================
 		// Perform decryption
-		decrypt(in_descriptor, out_descriptor);
+		exit(decrypt(in_descriptor, out_descriptor));
 	} else {
 		//=====================================================================
 		// Error: neither option is present

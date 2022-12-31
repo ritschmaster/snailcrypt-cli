@@ -15,6 +15,7 @@ fn encrypt_small_str() -> Result<(), Box<dyn std::error::Error>> {
     let encrypted = cmd_encrypt
     						   .arg("-e")
 							   .arg("2022-11-19T17:00:00+0100")			   
+							   .arg("-f")
 							   .write_stdin(plaintext.as_str())
 							   .assert()
 							   .success();
@@ -60,6 +61,7 @@ quis est convallis tempor.  Curabitur lacinia pulvinar nibh.  Nam a sapien.");
     let encrypted = cmd_encrypt
     						   .arg("-e")
 							   .arg("2022-11-19T17:00:00+0100")			   
+							   .arg("-f")
 							   .write_stdin(plaintext.as_str())
 							   .assert()
 							   .success();
@@ -77,6 +79,28 @@ quis est convallis tempor.  Curabitur lacinia pulvinar nibh.  Nam a sapien.");
 			   .write_stdin(ciphertext)
 			   .assert()
 			   .stdout(plaintext);
+
+    Ok(())
+}
+
+#[test]
+fn encrypt_fail_lockdate() -> Result<(), Box<dyn std::error::Error>> {
+	let plaintext: String = String::from("hello world");
+	
+	//=========================================================================
+	// Perform encryption
+    let mut cmd_encrypt = Command::cargo_bin("snailcrypt-cli")
+							.unwrap_or_else(|error| {
+								panic!("Error: {:?}", error);
+							});
+
+    cmd_encrypt
+    		.arg("-e")
+			.arg("2022-11-19T17:00:00+0100")			   
+			.write_stdin(plaintext.as_str())
+			.assert()
+			.failure()
+			.stderr("Error: lock date 2022-11-19T17:00:00+0100 is in the past.\n");
 
     Ok(())
 }
