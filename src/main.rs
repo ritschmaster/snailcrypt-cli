@@ -22,9 +22,9 @@ use snailcrypt::{
 	factory,
 };
 use chrono::{
-        DateTime,
-        FixedOffset,
-        Local,
+    DateTime,
+    FixedOffset,
+    Local,
 };	
 
 fn print_usage(program: &str, opts: Options) {
@@ -56,8 +56,9 @@ fn encrypt(lockdate_str: &str,
     // Parse lock date
     let lockdate: DateTime<FixedOffset> = DateTime::parse_from_str(&lockdate_str,
 	                                                               client.get_datetime_format())
-	    .unwrap_or_else(|error| {
-	    panic!("Error: {:?}", error);
+	    .unwrap_or_else(|_error| {
+	    eprintln!("Error: unable to parse the lock date \"{}\"", lockdate_str);
+	    exit(1);
 	});
 	
 	//=========================================================================
@@ -69,7 +70,7 @@ fn encrypt(lockdate_str: &str,
 											panic!("Error: unexpected error during conversion of current date time.");									
 										}));
 	if force_lockdate == false && date_now.cmp(&lockdate) != Ordering::Less {
-		eprintln!("Error: lock date {} is in the past.",		
+		eprintln!("Error: lock date \"{}\" is in the past.",		
 				  lockdate.format(client.get_datetime_format()).to_string());
 		return 1;
 	}
@@ -155,7 +156,7 @@ fn main() {
 
     let mut opts = Options::new();
     opts.optflag("d", "decrypt", "Decrypts a string");
-    opts.optopt( "e", "encrypt", "Encrypts a string using the given lock date", "LOCK_DATE");    
+    opts.optopt( "e", "encrypt", "Encrypts a string using the given lock date (e.g. \"2023-01-31T23:00:00+000\"", "LOCK_DATE");    
     opts.optopt( "i", "input",   "Use input file instead of stdin", "INPUT_FILE");    
     opts.optopt( "o", "stdout",  "Use input file instead of stdout", "OUTPUT_FILE");    
     opts.optflag("f", "force",   "Force using a lock date in the past");

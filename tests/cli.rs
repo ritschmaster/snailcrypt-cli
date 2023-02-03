@@ -100,7 +100,7 @@ fn encrypt_fail_lockdate() -> Result<(), Box<dyn std::error::Error>> {
 			.write_stdin(plaintext.as_str())
 			.assert()
 			.failure()
-			.stderr("Error: lock date 2022-11-19T17:00:00+0100 is in the past.\n");
+			.stderr("Error: lock date \"2022-11-19T17:00:00+0100\" is in the past.\n");
 
     Ok(())
 }
