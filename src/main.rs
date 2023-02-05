@@ -156,7 +156,7 @@ fn main() {
 
     let mut opts = Options::new();
     opts.optflag("d", "decrypt", "Decrypts a string");
-    opts.optopt( "e", "encrypt", "Encrypts a string using the given lock date (e.g. \"2023-01-31T23:00:00+000\"", "LOCK_DATE");    
+    opts.optopt( "e", "encrypt", "Encrypts a string using the given lock date (e.g. \"2023-01-31T23:00:00+0000\"", "LOCK_DATE");    
     opts.optopt( "i", "input",   "Use input file instead of stdin", "INPUT_FILE");    
     opts.optopt( "o", "stdout",  "Use input file instead of stdout", "OUTPUT_FILE");    
     opts.optflag("f", "force",   "Force using a lock date in the past");
