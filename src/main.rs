@@ -33,7 +33,11 @@ fn print_usage(program: &str, opts: Options) {
 }
 
 fn print_version(program: &str) {
-    println!("{} is version 0.1.0", program);
+    println!("{} is version 0.1.0
+Copyright by Richard Bäck 2023
+
+If you have not received a copy of the EULA you can access it by downloading 
+snailcrypt-cli at https://www.snailcrypt.com#download", program);
 }
 
 fn encrypt(lockdate_str: &str, 

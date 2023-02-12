@@ -1,0 +1,33 @@
+snailcrypt-cli
+==============
+
+Timed release of data
+
+
+1. What is snailcrypt-cli?
+--------------------------
+
+snailcrypt-cli allows you to use encrypt arbitary text using the central key managament platform of https://api.snailcrypt.com using the command line.
+
+
+2. How can I install snailcrypt-cli?
+------------------------------------
+
+Place the file snailcrypt-cli somewhere accessible to your PATH environment variable.
+
+
+3. How can I use snailcrypt-cli?
+--------------------------------
+
+Please run `snailcrypt-cli -h` for a list of available parameters.
+
+You may be interested in the following example (can be executed in Bash):
+echo 'Hello world' | snailcrypt-cli -e "2023-01-31T23:00:00+0000" | snailcrypt-cli -d
+
+
+4. What is the license of snailcrypt-cli?
+-----------------------------------------
+
+You should have received a file named LICENSE within the distribution you have downloaded. It lists the EULA which you are agreeing too by using snailcrypt-cli.
+
+For more information please visit https://www.snailcrypt.com.
