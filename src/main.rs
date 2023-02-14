@@ -93,13 +93,14 @@ fn encrypt(lockdate_str: &str,
 	 
  	//=========================================================================
  	// Encrypt plaintext
-    let mut ciphertext: String = client
-    						 .encrypt(plaintext.as_str(), 
-	    							  lockdate)
-    						 .unwrap_or_else(|error| {
-	    panic!("Error: {:?}", error);
-	}); 	   
-	
+ 	let ciphertext_result: Result<String, String> =
+ 		client.encrypt(plaintext.as_str(), lockdate);
+ 	if ciphertext_result.is_err() {
+ 		eprintln!("{}", ciphertext_result.unwrap_err());
+ 		return 1;
+ 	}
+ 	let mut ciphertext = ciphertext_result.unwrap();
+ 	
 	//=========================================================================
 	// Generate URL
 	if generate_url == true {
@@ -184,7 +185,7 @@ fn main() {
     opts.optopt( "i", "input",   "Use input file instead of stdin", "INPUT_FILE");    
     opts.optopt( "o", "stdout",  "Use input file instead of stdout", "OUTPUT_FILE");    
     opts.optflag("f", "force",   "Use the force and ignore any warnings. Those include:
-- Ignore using a lock date in the past (option -e)
+- Ignore using a lock date in the past (option -e). This might still fail if the server rejects the request.
 - Ignore the URL limit on URL generation (option -u)");
     opts.optflag("u", "url",     "Generate a URL pointing to a timer containing the message on https://webapp.snailcrypt.com. This is an option for -e.");
     opts.optflag("h", "help",    "Print this help");
