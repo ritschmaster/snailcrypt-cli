@@ -1,12 +1,13 @@
 [package]
 name = "snailcrypt-cli"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 license = "proprietary"
 
 [dependencies]
 getopts = "0.2"
 chrono = "0.4.23"
+url = "2.3.1"
 snailcrypt = { path = "../snailcrypt", version = "0.1.0" }
 
 [dev-dependencies]

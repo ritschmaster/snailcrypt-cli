@@ -26,6 +26,9 @@ use chrono::{
     FixedOffset,
     Local,
 };	
+use url::form_urlencoded;
+
+const URL_MAX_LEN: usize = 8000;
 
 fn print_usage(program: &str, opts: Options) {
     let brief = format!("Usage: {} [options]", program);
@@ -33,7 +36,7 @@ fn print_usage(program: &str, opts: Options) {
 }
 
 fn print_version(program: &str) {
-    println!("{} is version 0.1.0
+    println!("{} is version 0.2.0
 Copyright by Richard Bäck 2023
 
 If you have not received a copy of the EULA you can access it by downloading 
@@ -41,7 +44,9 @@ snailcrypt-cli at https://www.snailcrypt.com#download", program);
 }
 
 fn encrypt(lockdate_str: &str, 
+		   generate_url: bool,
 		   force_lockdate: bool,
+		   force_url_length: bool,
 		   mut in_descriptor: Box<dyn Read>,
 		   mut out_descriptor: Box<dyn Write>) 
 	-> i32 {
@@ -88,12 +93,27 @@ fn encrypt(lockdate_str: &str,
 	 
  	//=========================================================================
  	// Encrypt plaintext
-    let ciphertext: String = client
+    let mut ciphertext: String = client
     						 .encrypt(plaintext.as_str(), 
 	    							  lockdate)
     						 .unwrap_or_else(|error| {
 	    panic!("Error: {:?}", error);
 	}); 	   
+	
+	//=========================================================================
+	// Generate URL
+	if generate_url == true {
+		ciphertext = form_urlencoded::Serializer::new(String::new())
+                            .append_pair("c",
+                                         ciphertext.as_str())
+                            .finish();
+		ciphertext.insert_str(0, "https://webapp.snailcrypt.com/timer.php?");
+		if ciphertext.len() > URL_MAX_LEN
+			&& force_url_length == false {
+			eprintln!("Error: the generated URL is longer than {} characters", URL_MAX_LEN);
+			return 1;
+		}
+	}
 	
 	//=========================================================================
 	// Write ciphertext
@@ -163,7 +183,10 @@ fn main() {
     opts.optopt( "e", "encrypt", "Encrypts a string using the given lock date (e.g. \"2023-01-31T23:00:00+0000\"", "LOCK_DATE");    
     opts.optopt( "i", "input",   "Use input file instead of stdin", "INPUT_FILE");    
     opts.optopt( "o", "stdout",  "Use input file instead of stdout", "OUTPUT_FILE");    
-    opts.optflag("f", "force",   "Force using a lock date in the past");
+    opts.optflag("f", "force",   "Use the force and ignore any warnings. Those include:
+- Ignore using a lock date in the past (option -e)
+- Ignore the URL limit on URL generation (option -u)");
+    opts.optflag("u", "url",     "Generate a URL pointing to a timer containing the message on https://webapp.snailcrypt.com. This is an option for -e.");
     opts.optflag("h", "help",    "Print this help");
     opts.optflag("V", "version", "Print version");
     
@@ -228,10 +251,19 @@ fn main() {
 	}
 	
 	//=========================================================================
+	// Set URL generation flag
+	let mut generate_url: bool = false;
+	if matches.opt_present("u") {
+		generate_url = true;
+	}
+	
+	//=========================================================================
 	// Set force flag
 	let mut force_lockdate: bool = false;
+	let mut force_url_length: bool = false;
 	if matches.opt_present("f") {
 		force_lockdate = true;
+		force_url_length = true;
 	}
 	
 	if matches.opt_present("e") && matches.opt_present("d") {
@@ -252,10 +284,12 @@ fn main() {
 			},		
 		};    
 		
-		exit(encrypt(&lockdate_str, 
-					 force_lockdate, 
-					 in_descriptor, 
-					 out_descriptor));
+		exit(encrypt(&lockdate_str,
+						  generate_url, 
+					      force_lockdate,				
+					      force_url_length,	  
+					      in_descriptor, 
+					      out_descriptor));
 	} else if matches.opt_present("d") {
 		//=====================================================================
 		// Perform decryption
