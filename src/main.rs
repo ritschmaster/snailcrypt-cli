@@ -94,7 +94,11 @@ fn encrypt(lockdate_str: &str,
  	//=========================================================================
  	// Encrypt plaintext
  	let ciphertext_result: Result<String, String> =
- 		client.encrypt(plaintext.as_str(), lockdate);
+ 		client.encrypt(&client::ClientEncryptArg { 
+ 			plaintext: plaintext.clone(), 
+ 			lockdate: lockdate,
+ 			hint: String::from("") 
+ 		});
  	if ciphertext_result.is_err() {
  		eprintln!("{}", ciphertext_result.unwrap_err());
  		return 1;
