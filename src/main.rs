@@ -44,12 +44,20 @@ snailcrypt-cli at https://www.snailcrypt.com#download", program);
 }
 
 fn encrypt(lockdate_str: &str, 
+		   hint: &str,
 		   generate_url: bool,
 		   force_lockdate: bool,
-		   force_url_length: bool,
+		   force_url_length: bool,		   
 		   mut in_descriptor: Box<dyn Read>,
 		   mut out_descriptor: Box<dyn Write>) 
 	-> i32 {
+	//=========================================================================
+	// Setup version to use
+	let mut client_version = client::ClientVersion::V1;
+	if hint.len() > 0 {
+		client_version = client::ClientVersion::V2;
+	}
+	
 	//=========================================================================
 	// Setup client object
 	let analyzer_factory: factory::AnalyzerFactory = 
@@ -59,7 +67,7 @@ fn encrypt(lockdate_str: &str,
 		factory::ClientFactory::new(analyzer_factory, 
 									config_factory);
     let client: Box<dyn client::Client> = client_factory
-    									  .create(client::ClientVersion::V1);
+    									  .create(client_version);
        
     //=========================================================================
     // Parse lock date
@@ -95,9 +103,9 @@ fn encrypt(lockdate_str: &str,
  	// Encrypt plaintext
  	let ciphertext_result: Result<String, String> =
  		client.encrypt(&client::ClientEncryptArg { 
- 			plaintext: plaintext.clone(), 
- 			lockdate: lockdate,
- 			hint: String::from("") 
+ 			plaintext,
+ 			lockdate,
+ 			hint: String::from(hint) 
  		});
  	if ciphertext_result.is_err() {
  		eprintln!("{}", ciphertext_result.unwrap_err());
@@ -130,7 +138,8 @@ fn encrypt(lockdate_str: &str,
 	return 0;
 }
 
-fn decrypt(mut in_descriptor: Box<dyn Read>,
+fn decrypt(extract_hint: bool,
+	       mut in_descriptor: Box<dyn Read>,
 		   mut out_descriptor: Box<dyn Write>)
 	-> i32 {
 	//=========================================================================
@@ -160,13 +169,29 @@ fn decrypt(mut in_descriptor: Box<dyn Read>,
 	let client: Box<dyn client::Client> = client_factory
     									  .create(client_version);
     
-	//=========================================================================
-	// Decrypt ciphertext    
-    let plaintext: String = client
-    						.decrypt(ciphertext.as_str())
-    						.unwrap_or_else(|error| {
-	    panic!("Error: {:?}", error);
-	});
+    //=========================================================================
+	// Decrypt ciphertext but do not retrieve anything from the result   
+    let decryption_result = client
+   		.decrypt(ciphertext.as_str());
+
+    let plaintext: String;
+    if extract_hint == true {
+    	//=====================================================================
+    	// Retrieve hint
+    	if decryption_result.is_err() {
+    		plaintext = decryption_result.unwrap_err().hint;
+    	} else {
+    		plaintext = decryption_result.unwrap().hint;
+    	}
+    } else {
+		//=====================================================================
+		// Retrieve ciphertext    
+	    plaintext = decryption_result
+			.unwrap_or_else(|error| {
+			    panic!("Error: {:?}", error.error_message);
+			})
+			.plaintext;
+	}
 	
 	//=========================================================================
 	// Write plaintext
@@ -184,16 +209,18 @@ fn main() {
     let program = args[0].clone();
 
     let mut opts = Options::new();
-    opts.optflag("d", "decrypt", "Decrypts a string");
-    opts.optopt( "e", "encrypt", "Encrypts a string using the given lock date (e.g. \"2023-01-31T23:00:00+0000\"", "LOCK_DATE");    
-    opts.optopt( "i", "input",   "Use input file instead of stdin", "INPUT_FILE");    
-    opts.optopt( "o", "stdout",  "Use input file instead of stdout", "OUTPUT_FILE");    
-    opts.optflag("f", "force",   "Use the force and ignore any warnings. Those include:
+    opts.optflag("d", "decrypt",       "Decrypts a string");
+    opts.optopt( "e", "encrypt",       "Encrypts a string using the given lock date (e.g. \"2023-01-31T23:00:00+0000\"", "LOCK_DATE");
+    opts.optopt( "t", "hint",          "Use string as hint for the encrypted string. This option is only used for -e.", "HINT");
+    opts.optflag( "T", "extract-hint", "Extracts hint from encrypted string. This option is only used for -d.");
+    opts.optopt( "i", "input",         "Use input file instead of stdin", "INPUT_FILE");    
+    opts.optopt( "o", "stdout",        "Use input file instead of stdout", "OUTPUT_FILE");    
+    opts.optflag("f", "force",         "Use the force and ignore any warnings. Those include:
 - Ignore using a lock date in the past (option -e). This might still fail if the server rejects the request.
 - Ignore the URL limit on URL generation (option -u)");
-    opts.optflag("u", "url",     "Generate a URL pointing to a timer containing the message on https://webapp.snailcrypt.com. This is an option for -e.");
-    opts.optflag("h", "help",    "Print this help");
-    opts.optflag("V", "version", "Print version");
+    opts.optflag("u", "url",           "Generate a URL pointing to a timer containing the message on https://webapp.snailcrypt.com. This is an option for -e.");
+    opts.optflag("h", "help",          "Print this help");
+    opts.optflag("V", "version",       "Print version");
     
     let matches = match opts.parse(&args[1..]) {
         Ok(m) => { m },
@@ -256,6 +283,20 @@ fn main() {
 	}
 	
 	//=========================================================================
+	// Set hint
+	let hint = match matches.opt_str("t") {
+		Some(hint) => hint,
+		None => String::from(""),
+	};
+	
+	//=========================================================================
+	// Set extract hint flag
+	let mut extract_hint: bool = false;
+	if matches.opt_present("T") {
+		extract_hint = true;
+	}
+	
+	//=========================================================================
 	// Set URL generation flag
 	let mut generate_url: bool = false;
 	if matches.opt_present("u") {
@@ -290,6 +331,7 @@ fn main() {
 		};    
 		
 		exit(encrypt(&lockdate_str,
+						  hint.as_str(),
 						  generate_url, 
 					      force_lockdate,				
 					      force_url_length,	  
@@ -298,7 +340,9 @@ fn main() {
 	} else if matches.opt_present("d") {
 		//=====================================================================
 		// Perform decryption
-		exit(decrypt(in_descriptor, out_descriptor));
+		exit(decrypt(extract_hint,
+		   in_descriptor, 
+						  out_descriptor));
 	} else {
 		//=====================================================================
 		// Error: neither option is present
