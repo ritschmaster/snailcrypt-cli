@@ -695,6 +695,8 @@ dependencies = [
 [[package]]
 name = "snailcrypt"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e3c618e6df49032162b45ba68407af489052e2d14b76ff8f1a813e1687222ec"
 dependencies = [
  "base64",
  "cbindgen",

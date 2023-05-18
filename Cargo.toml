@@ -8,7 +8,7 @@ license = "proprietary"
 getopts = "0.2"
 chrono = "0.4.23"
 url = "2.3.1"
-snailcrypt = { path = "../snailcrypt", version = "0.1.0" }
+snailcrypt = "0.1.0"
 
 [dev-dependencies]
 assert_cmd = "2.0.7"
