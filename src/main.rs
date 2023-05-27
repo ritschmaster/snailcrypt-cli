@@ -13,11 +13,11 @@ use std::{
 		Write,
 	},	
 	process::exit,
+    rc::Rc,
 };
 
 use getopts::Options;
 use snailcrypt::{
-	util,
 	client,
 	factory,
 };
@@ -52,22 +52,19 @@ fn encrypt(lockdate_str: &str,
 		   mut out_descriptor: Box<dyn Write>) 
 	-> i32 {
 	//=========================================================================
-	// Setup version to use
-	let mut client_version = client::ClientVersion::V1;
-	if hint.len() > 0 {
-		client_version = client::ClientVersion::V2;
-	}
-	
-	//=========================================================================
 	// Setup client object
 	let analyzer_factory: factory::AnalyzerFactory = 
-		factory::AnalyzerFactory::new(); 		
+		factory::AnalyzerFactory::new();
+    let analyzer = analyzer_factory.create();
+    
 	let config_factory: factory::ConfigFactory = factory::ConfigFactory::new();
+    let config = config_factory.create();
+ 
 	let client_factory: factory::ClientFactory = 
-		factory::ClientFactory::new(analyzer_factory, 
-									config_factory);
-    let client: Box<dyn client::Client> = client_factory
-    									  .create(client_version);
+		factory::ClientFactory::new(Rc::clone(&analyzer),
+									Rc::clone(&config));
+    let client: Rc<dyn client::Client> = client_factory
+    									  .create();
        
     //=========================================================================
     // Parse lock date
@@ -150,24 +147,18 @@ fn decrypt(extract_hint: bool,
 	});			
 			
 	//=========================================================================
-	// Setup analyzer object
+    // Setup client object
 	let analyzer_factory: factory::AnalyzerFactory = 
 		factory::AnalyzerFactory::new();
-	let analyzer: Box<dyn util::Analyzer> = analyzer_factory.create();
-	
-	//=========================================================================
-	// Setup client object 		
+	let analyzer = analyzer_factory.create();
+     		
 	let config_factory: factory::ConfigFactory = factory::ConfigFactory::new();
+    let config = config_factory.create();
+ 
 	let client_factory: factory::ClientFactory = 
-		factory::ClientFactory::new(analyzer_factory, 
-									config_factory);
-	let client_version: client::ClientVersion = 
-		analyzer.get_version(ciphertext.as_str())								
-				.unwrap_or_else(|error| {
-					panic!("Error: {:?}", error);			
-				});
-	let client: Box<dyn client::Client> = client_factory
-    									  .create(client_version);
+		factory::ClientFactory::new(Rc::clone(&analyzer),
+									Rc::clone(&config));
+	let client = client_factory.create();
     
     //=========================================================================
 	// Decrypt ciphertext but do not retrieve anything from the result   
