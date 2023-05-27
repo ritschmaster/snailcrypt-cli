@@ -60,11 +60,11 @@ fn print_usage(program: &str, opts: Options) {
 }
 
 fn print_version(program: &str) {
-    println!("{} is version 0.2.0
+    println!("{} is version 0.3.1
 Copyright by Richard Bäck 2023
 
-If you have not received a copy of the EULA you can access it by downloading 
-snailcrypt-cli at https://www.snailcrypt.com#download", program);
+If you have not received a copy of the LICENSE you can access it by downloading
+snailcrypt-cli at https://github.com/ritschmaster/snailcrypt-cli", program);
 }
 
 fn encrypt(lockdate_str: &str, 

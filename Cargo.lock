@@ -709,7 +709,7 @@ dependencies = [
 
 [[package]]
 name = "snailcrypt-cli"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "assert_cmd",
  "chrono",

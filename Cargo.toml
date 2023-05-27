@@ -1,9 +1,9 @@
 [package]
 name = "snailcrypt-cli"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2021"
 license = "MIT"
-description = "CLI client for api.snailcrypt.com"
+description = "CLI client to access snailcrypt.com"
 authors = [ "Richard Bäck <richard.baeck@snailcrypt.com>" ]
 repository = "https://github.com/ritschmaster/snailcrypt"
 
