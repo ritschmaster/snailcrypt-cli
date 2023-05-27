@@ -4,7 +4,7 @@ Timed release of data
 
 ## What is snailcrypt-cli?
 
-snailcrypt-cli allows you to use encrypt arbitary text using the central key managament platform of https://api.snailcrypt.com using the command line.
+snailcrypt-cli allows you to use encrypt arbitary text using the central key managament platform of https://snailcrypt.com using the command line.
 
 ## Installation
 
