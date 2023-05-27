@@ -1,17 +1,19 @@
-END USER LICENSE AGREEMENT
+Copyright 2023 Richard Bäck <richard.baeck@snailcrypt.com>
 
-snailcrypt-cli was created by Richard Bäck and the copyright of it belongs to Richard Bäck. By using snailcrypt-cli you are agreeing to this license agreement.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-There is no warranty of any kind for any purpose to anyone.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-The user of snailcrypt-cli can at no time make Richard Bäck liable for any damages caused by snailcrypt-cli. 
-
-The user of snailcrypt-cli can do with it as long the following terms are met:
-1. snailcrypt-cli is not used for any illegal purposes in the jurisdiction of the user or of Richard Bäck.
-2. Re-selling snailcrypt-cli is not permitted. 
-3. Modifying snailcrypt-cli is not permitted. 
-4. Copying snailcrypt-cli for another person at no cost by the user is only permitted if this license text is included.
-
-In case of any questions you can contact Richard Bäck via e-mail using richard.baeck@snailcrypt.com.
-
-Illegal parts of this license text do not invalidate legal parts.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
