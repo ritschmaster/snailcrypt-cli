@@ -27,4 +27,4 @@ You may be interested in the following example (can be executed in Bash):
 
 ## What is the license of snailcrypt-cli?
 
-snailcrypt-cli is licensed under the MIT license. Please see the included LICENSE.txt file for more information.
+snailcrypt-cli is licensed under the GPLv2. Please see the included LICENSE file for more information.
