@@ -42,4 +42,4 @@ audit:
 	
 dist: release
 	rm -f $(DIST_NAME).zip
-	zip --junk-paths $(DIST_NAME).zip LICENSE.txt README.md target/release/snailcrypt-cli
+	zip --junk-paths $(DIST_NAME).zip LICENSE README.md target/release/snailcrypt-cli
