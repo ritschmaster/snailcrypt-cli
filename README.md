@@ -33,7 +33,7 @@ You may be interested in the following very simple example (can be executed in B
 
 If you have [qrencode](https://fukuchi.org/works/qrencode/) installed, then you can use it to generate a QR code image from your encrypted message. The QR code will receive a link to the timer of the [snailcrypt webapp](https://webapp.snailcrypt.com).
 
-   echo 'Hello world'| snailcrypt-cli -e "2022-11-19T17:00:00+0100" -f -u | qrencode -o message.png
+    echo 'Hello world'| snailcrypt-cli -e "2022-11-19T17:00:00+0100" -f -u | qrencode -o message.png
 
 ## What is the license of snailcrypt-cli?
 
