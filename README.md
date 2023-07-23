@@ -21,9 +21,19 @@ Before you start you have to [setup the Rust toolchain](https://www.rust-lang.or
 
 Please run `snailcrypt-cli -h` for a list of available parameters.
 
-You may be interested in the following example (can be executed in Bash):
+If you are into rust then you can directly execute snailcrypt-cli using `cargo`. After cloning the repository just substitute `snailcrypt-cli` in the examples below with `cargo run --`.
+
+### Simple example
+
+You may be interested in the following very simple example (can be executed in Bash):
 
     echo 'Hello world' | snailcrypt-cli -e "2022-11-19T17:00:00+0100" -f | snailcrypt-cli -d
+    
+### Generate a QR code image
+
+If you have [qrencode](https://fukuchi.org/works/qrencode/) installed, then you can use it to generate a QR code image from your encrypted message. The QR code will receive a link to the timer of the [snailcrypt webapp](https://webapp.snailcrypt.com).
+
+   echo 'Hello world'| snailcrypt-cli -e "2022-11-19T17:00:00+0100" -f -u | qrencode -o message.png
 
 ## What is the license of snailcrypt-cli?
 
